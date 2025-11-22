@@ -70,34 +70,34 @@ pipeline {
         }
 
         stage('Deploy Container') {
-            steps {
-                echo "🚀 Deploying Docker container with GPU support..."
-                sh """
-                    # Deploy the container with GPU access
-                    docker run -d \
-                        --name ${CONTAINER_NAME} \
-                        --gpus all \
-                        -p ${STUDENT_PORT}:${STUDENT_PORT} \
+    steps {
+        echo "🚀 Deploying Docker container with GPU support..."
+        sh """
+            # Deploy the container with GPU access
+            docker run -d \
+                --name ${CONTAINER_NAME} \
+                --gpus all \
+                -p ${STUDENT_PORT}:${STUDENT_PORT} \
+                --restart unless-stopped \
+                ${IMAGE_NAME}:latest
 
-                        --restart unless-stopped \
-                        ${IMAGE_NAME}:latest
+            # Wait for container to be healthy
+            echo "⏳ Waiting for container to be ready..."
+            sleep 5
 
-                    # Wait for container to be healthy
-                    echo "⏳ Waiting for container to be ready..."
-                    sleep 5
+            # Check if container is running
+            if [ \$(docker ps -q -f name=${CONTAINER_NAME}) ]; then
+                echo "✅ Container ${CONTAINER_NAME} is running"
+                docker ps -f name=${CONTAINER_NAME}
+            else
+                echo "❌ Container failed to start!"
+                docker logs ${CONTAINER_NAME}
+                exit 1
+            fi
+        """
+    }
+}
 
-                    # Check if container is running
-                    if [ \$(docker ps -q -f name=${CONTAINER_NAME}) ]; then
-                        echo "✅ Container ${CONTAINER_NAME} is running"
-                        docker ps -f name=${CONTAINER_NAME}
-                    else
-                        echo "❌ Container failed to start!"
-                        docker logs ${CONTAINER_NAME}
-                        exit 1
-                    fi
-                """
-            }
-        }
 
         stage('Health Check') {
             steps {
