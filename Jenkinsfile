@@ -78,7 +78,7 @@ pipeline {
                         --name ${CONTAINER_NAME} \
                         --gpus all \
                         -p ${STUDENT_PORT}:${STUDENT_PORT} \
-                        -p 8000:8000 \
+
                         --restart unless-stopped \
                         ${IMAGE_NAME}:latest
 

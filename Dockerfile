@@ -29,15 +29,13 @@ COPY cuda_test.py .
 # Create directory for test data (optional)
 RUN mkdir -p /app/test_data
 
-# Expose ports
-# Port 8001 is the default student port (change as needed)
-# Port 8000 is for Prometheus metrics (exposed via /metrics endpoint)
-EXPOSE 8001
-EXPOSE 8000
+# Expose only your student port
+# The /metrics endpoint will be available on the same port
+EXPOSE 8110
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8001/health || exit 1
+    CMD curl -f http://localhost:8110/health || exit 1
 
 # Run the application
 CMD ["python3", "main.py"]
